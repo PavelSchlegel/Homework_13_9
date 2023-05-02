@@ -1,24 +1,29 @@
 #ifndef GRAPH
 #define GRAPH
 #include "human.hpp"
+#include <vector>
 #include <unordered_set>
+#include <unordered_map>
+#include <memory>
+#include <set>
+#include <map>
 
-struct Edge
+struct Pair
 {
     const Human* lhs;
     const Human* rhs;
 };
 
-bool operator == (const Edge& a, const Edge& b) noexcept;
+bool operator == (const Pair& a, const Pair& b) noexcept;
 
 namespace std {
     template<>
-    struct hash<Edge>
+    struct hash<Pair>
     {
-        std::size_t operator()(Edge const& edge) const noexcept
+        std::size_t operator()(Pair const& pair) const noexcept
         {
             const std::hash<const Human*> hasher;
-            return hasher(edge.lhs) ^ hasher(edge.rhs);
+            return hasher(pair.lhs) ^ hasher(pair.rhs);
         }
     };
 }
@@ -27,8 +32,7 @@ class Graph
 {
 private:
 
-    std::unordered_set<Human> m_humans;
-    std::unordered_set<Edge>  m_edges;
+    std::unordered_map<Human, std::set<const Human*>> m_humans;
 
 public:
 
@@ -36,9 +40,11 @@ public:
     ~Graph();
     Graph(const Graph& graph) = delete;
     //void show_Humans() noexcept;
-    void add_human(Human human);
+    void add_human(const Human& human);
     void add_edge(const Human& lhs, const Human& rhs);
     //void del_Human(Human *human) noexcept;
-    void pair_Friends() noexcept;
+    std::unordered_set<Pair> get_pairs() const;
+    std::pair<std::unique_ptr<int[]>, std::map<const Human*, std::size_t>> find_paths() const;
+    void print_n_handshakes(std::size_t count = 3) const;
 };
 #endif
